@@ -3,7 +3,7 @@ import threading
 
 HEADER = 2048
 FMT = "utf-8"
-SERVER = "127.0.0.1"
+SERVER = "192.168.2.0"
 PORT = 7000
 ADDR = (SERVER, PORT)
 CLIENTS: list[socket.socket] = []
