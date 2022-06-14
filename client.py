@@ -8,6 +8,8 @@ import logging
 from pyglet import gl
 from imgui.integrations.pyglet import create_renderer
 
+from crypto_app_core import transactions as ts
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -24,10 +26,18 @@ class A:
     balance: int = 0
     send_recieve_amount: int = 0
     logged_in: bool = False
+    
+
+class X:
+    sender_name: str = ""
+    recipient_name: str = ""
+    amount: float = .0
+    fee: float = .0
+    message: str = ""
 
 
 HEADER = 2048
-SERVER = "139.162.37.134"
+SERVER = "172.104.185.153"
 PORT = 7000
 ADDR = (SERVER, PORT)
 FMT = "utf-8"
@@ -46,8 +56,12 @@ def authenticate():
                         A.warning = "Failed to sign in, please try again"
                     case 'A':
                         A.warning = "This username has already been used"
-                    case _:
+                    case 'N':
+                        A.warning = "Username not found"
+                    case 'P':
                         A.logged_in = True
+                    case _:
+                        raise NotImplementedError
 
                 break
 
@@ -160,6 +174,51 @@ def main():
         imgui.text(f"Balance: {A.balance}")
 
         imgui.end()
+
+        
+        imgui.begin("Broadcasted Transactions")
+
+        imgui.columns(6, "Transactions")
+
+        imgui.separator()
+        for i, (txt, o) in enumerate(
+            zip(
+                ("Index", "Sender", "Recipient", "Amount", "Fee", "Message"),
+                (50, 150, 250, 325, 375, 600),
+            ),
+            1,
+        ):
+            imgui.text(txt)
+            imgui.next_column()
+            imgui.core.set_column_offset(i, o)
+        imgui.separator()
+        
+        u = ts.N.get_user_with_name(A.username)
+        assert u
+        
+        for tx in u.caught_up_transactions:
+            tx_info = tx.info
+            for txt in (tx.index, tx_info.sender, tx_info.recipient, tx_info.amount, tx_info.fee, tx_info.message):
+                imgui.text(txt)
+                imgui.next_column()
+
+        if imgui.button("Broadcast Transaction"):
+            imgui.open_popup("Create Transaction")
+
+        if imgui.begin_popup("Create Transaction"):
+            imgui.core.input_text("<- Sender username", X.sender_name, 256)
+            imgui.core.input_text("<- Recipient username", X.recipient_name, 256)
+            imgui.core.input_float("<- Amount", X.amount)
+            imgui.core.input_float("<- Fee", X.fee)
+            imgui.core.input_text_multiline("<- Message", X.message, 1024)
+
+            imgui.end_popup()
+
+
+
+        imgui.end()
+
+        
 
     def draw(_):
         if not A.logged_in:

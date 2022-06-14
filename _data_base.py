@@ -9,17 +9,17 @@ connection_string = f"mongodb+srv://Kararu:{password}@cryptoapp.zhsbqpe.mongodb.
 client = MongoClient(connection_string)
 
 dbs = client.list_database_names()
-user = client.user_data
-collections = user.list_collection_names()
-print(dbs)
+user = client.user_data.passwords
 
 
 def addDBS():
-    collection = user.passwords
 
-    test_doc = {"name": "kararu", "password": "Kao1st99"}
-    insert_id = collection.insert_one(test_doc).inserted_id
+    test_doc = {"name": "Temmie", "password": "..."}
+    insert_id = user.insert_one(test_doc).inserted_id
     print(insert_id)
 
+def find(username):
+    find = user.find_one({"name": username})
+    print(find["password"])
 
-addDBS()
+find("kararu")
